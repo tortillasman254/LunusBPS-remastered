@@ -16,8 +16,8 @@ https://github.com/H4cK3dR4Du/Discord-Member-Booster/assets/118562174/3a50780a-e
 
 ## ⚠️ DISCLAIMER / NOTES
 This github repo is for EDUCATIONAL PURPOSES ONLY. We Are NOT under any responsibility if a problem occurs.
-
+This version is a remastered that check if links are working before scraping them, avoiding ssl errors.
+All credits for the main script goes to H4cK3dR4Du.
 ## ✨ Issues / Doubts
-
 - If you have any questions do not hesitate to enter my discord: https://discord.gg/raducord
 - Or if you have any error do not forget to report it in: [issues](https://github.com/H4cK3dR4Du/LunusBPS/issues/new)
