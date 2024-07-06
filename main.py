@@ -1,5 +1,6 @@
 import os, concurrent.futures, time, threading, random, string, json, ctypes, sys
-
+import requests, colorama, pystyle, datetime, aiosocks, asyncio, aiohttp_socks, socks, socket, tls_client
+from requests.exceptions import SSLError
 try:
     import requests, colorama, pystyle, datetime, aiosocks, asyncio, aiohttp_socks, socks, socket, tls_client
 except ModuleNotFoundError:
@@ -59,7 +60,7 @@ def update_title2():
     ctypes.windll.kernel32.SetConsoleTitleW(f'[ LunusBPS ] By H4cK3dR4Du & 452b | HTTP/s Valid : {http_checked} ~ Socks4 Valid : {socks4_checked} ~ Socks5 Valid : {socks5_checked}')
 
 def ui():
-    ctypes.windll.kernel32.SetConsoleTitleW(f"[ LunusBPS ] By H4cK3dR4Du & 452b | Y'all love H4cK3dR4Du's and 452b's feds ❤️")
+    ctypes.windll.kernel32.SetConsoleTitleW(f"[ LunusBPS ] By H4cK3dR4Du & 452b | Y'all love H4cK3dR4Du's and 452b's feds ")
     System.Clear()
     Write.Print(f"""
 \t\t888                                              888888b.   8888888b.   .d8888b.  
@@ -116,7 +117,7 @@ socks4_list = [
     "https://raw.githubusercontent.com/prxchk/proxy-list/main/socks4.txt",
     "https://raw.githubusercontent.com/ALIILAPRO/Proxy/main/socks4.txt",
     "https://raw.githubusercontent.com/zloi-user/hideip.me/main/socks4.txt",
-    "https://www.proxyscan.io/download?type=socks4,"
+    "https://www.proxyscan.io/download?type=socks4",
 ]
 
 socks5_list = [
@@ -128,7 +129,6 @@ socks5_list = [
     "https://api.proxyscrape.com/?request=displayproxies&proxytype=socks5",
     "https://api.proxyscrape.com/v2/?request=displayproxies&protocol=socks5",
     "https://proxyspace.pro/socks5.txt",
-    "https://raw.githubusercontent.com/manuGMG/proxy-365/main/SOCKS5.txt",
     "https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/socks5.txt",
     "https://raw.githubusercontent.com/monosans/proxy-list/main/proxies_anonymous/socks5.txt",
     "https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/socks5.txt",
@@ -147,6 +147,37 @@ socks5_list = [
     "https://raw.githubusercontent.com/zloi-user/hideip.me/main/socks5.txt"
 ]
 
+def test_links(links):
+    for link in links:
+        try:
+            response = requests.get(link)
+            response.raise_for_status()
+            print(f"{green}Success: {link}")
+        except SSLError as e:
+            print(f"{red}SSL Error: {link} - {e}")
+            if link in http_links : 
+                http_links.remove(link)
+            if link in socks4_list : 
+                socks4_list.remove(link)
+            if link in socks5_list : 
+                socks5_list.remove(link)
+        except Exception as e:
+            print(f"{red}Error: {link} - {e}")
+            if link in http_links : 
+                http_links.remove(link)
+            if link in socks4_list : 
+                socks4_list.remove(link)
+            if link in socks5_list : 
+                socks5_list.remove(link)
+
+print(f"{pink}Testing HTTP links:")
+test_links(http_links)
+
+print(f"\n{pink}Testing SOCKS4 links:")
+test_links(socks4_list)
+
+print(f"\n{pink}Testing SOCKS5 links:")
+test_links(socks5_list)
 def scrape_proxy_links_https(link):
     global https_scraped
     response = requests.get(link)
@@ -259,7 +290,7 @@ def check_proxy_http(proxy):
     
     try:
         url = 'http://httpbin.org/get' 
-        r = requests.get(url, proxies=proxy_dict, timeout=30)
+        r = requests.get(url, proxies=proxy_dict, timeout=30,)
         if r.status_code == 200:
             with output_lock:
                 time_rn = get_time_rn()
