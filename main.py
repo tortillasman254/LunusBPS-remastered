@@ -272,6 +272,24 @@ def scrape_proxy_links_https(link):
             print(f"{red}[{get_time_rn()}] Failed to scrape HTTPS {link}: {e}{reset}")
     return []
 
+async def scrape_proxy_links_https(link, session):
+    global https_scraped
+    try:
+        async with session.get(link, timeout=aiohttp.ClientTimeout(total=10)) as response: # Use session
+            response.raise_for_status()
+            proxies_text = await response.text()
+            with output_lock:
+                time_rn = get_time_rn()
+                print(f"[ {pink}{time_rn}{reset} ] | ( {green}SCRAPED{reset} ) {pretty}HTTP/S --> {link[:60]}...{reset}")
+            proxies = proxies_text.splitlines()
+            https_scraped += len(proxies)
+            update_title()
+            return proxies
+    except (aiohttp.ClientError, asyncio.TimeoutError) as e: # Updated exceptions
+        with output_lock:
+            print(f"{red}[{get_time_rn()}] Failed to async scrape HTTPS {link}: {e}{reset}")
+    return []
+
 async def scrape_proxy_links_socks4(link, session):
     global socks4_scraped
     try:
