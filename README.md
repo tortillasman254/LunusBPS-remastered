@@ -33,6 +33,7 @@ https://github.com/H4cK3dR4Du/Discord-Member-Booster/assets/118562174/3a50780a-e
     ```bash
     pip install -r requirements.txt
     ```
+    (The script includes an automatic fix for a common `asyncio`/`aiodns` issue on Windows.)
 
 3.  **Run the script:**
     ```bash

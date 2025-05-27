@@ -3,11 +3,26 @@ import requests, colorama, pystyle, datetime, socks, socket, tls_client
 import asyncio 
 import aiohttp 
 from aiohttp_socks import ProxyConnector, ProxyType, SocksConnectionError, SocksError # Added aiohttp-socks imports
+import platform # Added platform import
 
 from requests.exceptions import SSLError 
 
 # Removed the try-except block for automatic module installation.
 # Dependencies are now expected to be installed via requirements.txt.
+
+# Apply Windows event loop policy fix for aiodns/aiohttp
+if platform.system() == "Windows":
+    try:
+        # WindowsSelectorEventLoopPolicy is preferred for aiohttp on Windows
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    except AttributeError:
+        # Fallback for older Python versions where WindowsSelectorEventLoopPolicy might not be directly available
+        # This might not fully resolve aiodns issues if WindowsSelectorEventLoopPolicy is truly needed and missing,
+        # but it's better than a hard crash if the policy class itself isn't found.
+        # A more robust solution for very old Pythons would involve checking Python version further.
+        # However, aiodns itself has minimum Python version requirements.
+        print(f"{Fore.YELLOW}Note: Could not apply WindowsSelectorEventLoopPolicy. Using default asyncio policy for Windows.{Fore.RESET}")
+        pass # Or log a warning
 
 from pystyle import Write, System, Colors, Colorate, Anime
 from colorama import Fore, Style
