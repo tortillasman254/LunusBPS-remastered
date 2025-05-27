@@ -350,10 +350,31 @@ async def checker_proxy_socks_async(proxy, proxy_type_const):
     global socks4_checked, socks5_checked
     
     try:
-        ip, port_str = proxy.split(':')
-        port = int(port_str)
-    except ValueError:
-        # print(f"{red}Invalid proxy format for SOCKS: {proxy}{reset}")
+        parts = proxy.split(':')
+        if len(parts) < 2: # Basic check for at least ip:port
+            # Potentially log to console with output_lock if desired
+            # print(f"{yellow}[{get_time_rn()}] Skipping malformed SOCKS proxy (not enough parts): {proxy}{reset}")
+            return # Skip this proxy
+
+        ip = parts[0]
+        port_str = parts[1]
+
+        # Validate IP (basic check, can be enhanced if needed)
+        if not ip: # Check if IP is empty
+            # print(f"{yellow}[{get_time_rn()}] Skipping SOCKS proxy with empty IP: {proxy}{reset}")
+            return
+
+        port = int(port_str) # This can raise ValueError
+
+        if not (0 <= port <= 65535):
+            # print(f"{yellow}[{get_time_rn()}] Skipping SOCKS proxy with invalid port range: {proxy}{reset}")
+            return # Skip this proxy
+
+    except ValueError: # Catches if port_str is not a valid integer
+        # print(f"{yellow}[{get_time_rn()}] Skipping SOCKS proxy with non-integer port: {proxy}{reset}")
+        return # Skip this proxy
+    except Exception as e: # Catch any other unexpected parsing errors
+        # print(f"{red}[{get_time_rn()}] Error parsing SOCKS proxy string {proxy}: {e}{reset}")
         return
 
     if proxy_type_const == socks.PROXY_TYPE_SOCKS4:
