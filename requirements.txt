@@ -1,0 +1,7 @@
+requests
+colorama
+pystyle
+PySocks
+aiohttp
+aiohttp-socks
+tls-client

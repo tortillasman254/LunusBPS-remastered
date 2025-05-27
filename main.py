@@ -1,24 +1,17 @@
 import os, concurrent.futures, time, threading, random, string, json, ctypes, sys
-import requests, colorama, pystyle, datetime, aiosocks, asyncio, aiohttp_socks, socks, socket, tls_client
-from requests.exceptions import SSLError
-try:
-    import requests, colorama, pystyle, datetime, aiosocks, asyncio, aiohttp_socks, socks, socket, tls_client
-except ModuleNotFoundError:
-    os.system("pip install requests")
-    os.system("pip install colorama")
-    os.system("pip install pystyle")
-    os.system("pip install datetime")
-    os.system("pip install aiosocks")
-    os.system("pip install asyncio")
-    os.system("pip install aiohttp-socks")
-    os.system("pip install socks")
-    os.system("pip install socket")
-    os.system("pip install tls_client")
+import requests, colorama, pystyle, datetime, socks, socket, tls_client
+import asyncio 
+import aiohttp 
+from aiohttp_socks import ProxyConnector, ProxyType, SocksConnectionError, SocksError # Added aiohttp-socks imports
+
+from requests.exceptions import SSLError 
+
+# Removed the try-except block for automatic module installation.
+# Dependencies are now expected to be installed via requirements.txt.
 
 from pystyle import Write, System, Colors, Colorate, Anime
 from colorama import Fore, Style
 from datetime import datetime
-from aiohttp_socks import ProxyConnector, ProxyType
 
 https_scraped = 0
 socks4_scraped = 0
@@ -41,7 +34,7 @@ gray = Fore.LIGHTBLACK_EX + Fore.WHITE
 reset = Fore.RESET
 pink = Fore.LIGHTGREEN_EX + Fore.LIGHTMAGENTA_EX
 dark_green = Fore.GREEN + Style.BRIGHT
-output_lock = threading.Lock()
+output_lock = threading.Lock() # For thread-safe printing from synchronous parts
 
 def get_time_rn():
     date = datetime.now()
@@ -53,31 +46,101 @@ def get_time_rn():
 
 def update_title():
     global https_scraped, socks4_scraped, socks5_scraped
-    ctypes.windll.kernel32.SetConsoleTitleW(f'[ LunusBPS ] By H4cK3dR4Du & 452b | HTTP/s Scraped : {https_scraped} ~ Socks4 Scraped : {socks4_scraped} ~ Socks5 Scraped : {socks5_scraped}')
+    try:
+        ctypes.windll.kernel32.SetConsoleTitleW(f'[ LunusBPS ] By H4cK3dR4Du & 452b | HTTP/s Scraped : {https_scraped} ~ Socks4 Scraped : {socks4_scraped} ~ Socks5 Scraped : {socks5_scraped}')
+    except Exception: # Handle cases where console might not be available
+        pass
 
 def update_title2():
-    global https_scraped, socks4_scraped, socks5_scraped
-    ctypes.windll.kernel32.SetConsoleTitleW(f'[ LunusBPS ] By H4cK3dR4Du & 452b | HTTP/s Valid : {http_checked} ~ Socks4 Valid : {socks4_checked} ~ Socks5 Valid : {socks5_checked}')
+    global http_checked, socks4_checked, socks5_checked
+    try:
+        ctypes.windll.kernel32.SetConsoleTitleW(f'[ LunusBPS ] By H4cK3dR4Du & 452b | HTTP/s Valid : {http_checked} ~ Socks4 Valid : {socks4_checked} ~ Socks5 Valid : {socks5_checked}')
+    except Exception:
+        pass
 
 def ui():
-    ctypes.windll.kernel32.SetConsoleTitleW(f"[ LunusBPS ] By H4cK3dR4Du & 452b | Y'all love H4cK3dR4Du's and 452b's feds ")
-    System.Clear()
-    Write.Print(f"""
-\t\t888                                              888888b.   8888888b.   .d8888b.  
-\t\t888                                              888  "88b  888   Y88b d88P  Y88b 
-\t\t888                                              888  .88P  888    888 Y88b.      
-\t\t888     888  888 88888b.  888  888 .d8888b       8888888K.  888   d88P  "Y888b.   
-\t\t888     888  888 888 "88b 888  888 88K           888  "Y88b 8888888P"      "Y88b. 
-\t\t888     888  888 888  888 888  888 "Y8888b.      888    888 888              "888 
-\t\t888     Y88b 888 888  888 Y88b 888      X88      888   d88P 888        Y88b  d88P 
-\t\t88888888 "Y88888 888  888  "Y88888  88888P'      8888888P"  888         "Y8888P"                                                                                  
+    try:
+        ctypes.windll.kernel32.SetConsoleTitleW(f"[ LunusBPS ] By H4cK3dR4Du & 452b | Starting... ")
+        System.Clear()
+        Write.Print(f"""
+		888                                              888888b.   8888888b.   .d8888b.  
+		888                                              888  \"88b  888   Y88b d88P  Y88b 
+		888                                              888  .88P  888    888 Y88b.      
+		888     888  888 88888b.  888  888 .d8888b       8888888K.  888   d88P  \"Y888b.   
+		888     888  888 888 \"88b 888  888 88K           888  \"Y88b 8888888P\"      \"Y88b. 
+		888     888  888 888  888 888  888 \"Y8888b.      888    888 888              \"888 
+		888     Y88b 888 888  888 Y88b 888      X88      888   d88P 888        Y88b  d88P 
+		88888888 \"Y88888 888  888  \"Y88888  88888P'      8888888P\"  888         \"Y8888P\"                                                                                  
                                                                                   
-\t\t[ This tool is a scraper & checker for HTTP/s, SOCKS4, and SOCKS5 proxies. ]
-\t\t\t\t\t[ The Best Ever Not Gonna Lie ]                                                                          
-""", Colors.red_to_blue, interval=0.000)
-    time.sleep(3)
+		[ This tool is a scraper & checker for HTTP/s, SOCKS4, and SOCKS5 proxies. ]
+					[ The Best Ever Not Gonna Lie ]                                                                          
+""", Colors.red_to_blue, interval=0.000) # Interval 0 for no animation if too slow
+        time.sleep(1) # Reduced sleep
+    except Exception: # if pystyle fails or console issues
+        print("Lunus Best Proxy Scraper 🪐")
 
-ui()
+# Function to load custom proxy sources / Display startup menu
+def load_custom_sources():
+    global http_links, socks4_list, socks5_list
+    
+    print(f"{cyan}--- Lunus Proxy Scraper Menu ---{reset}")
+    print(f"{pink}Please choose an option:{reset}")
+    print(f"{green}1. Scrape & Check Proxies (Default Sources){reset}")
+    print(f"{yellow}2. Scrape & Check Proxies (Custom Sources){reset}")
+    print(f"{red}3. Exit{reset}")
+    
+    choice = input(f"{cyan}Enter your choice (1-3): {reset}").strip()
+
+    if choice == '1':
+        print(f"{blue}> Proceeding with default proxy sources.{reset}\n")
+        return # Default lists are already populated
+    elif choice == '2':
+        print(f"{cyan}--- Loading Custom Proxy Sources ---{reset}")
+        source_types = [
+            ("HTTP", "http_links"),
+            ("SOCKS4", "socks4_list"),
+            ("SOCKS5", "socks5_list")
+        ]
+        
+        for display_name, list_variable_name in source_types:
+            current_default_count = 0
+            # Get current length of default lists to show in prompt
+            if list_variable_name == "http_links": current_default_count = len(http_links)
+            elif list_variable_name == "socks4_list": current_default_count = len(socks4_list)
+            elif list_variable_name == "socks5_list": current_default_count = len(socks5_list)
+
+            file_path = input(f"{yellow}Enter file path for {display_name} proxy sources (leave blank to use default - {current_default_count} sources): {reset}").strip()
+            
+            if file_path:
+                try:
+                    with open(file_path, 'r') as f:
+                        custom_sources = [line.strip() for line in f if line.strip()]
+                    
+                    if custom_sources:
+                        if list_variable_name == "http_links":
+                            http_links = custom_sources
+                        elif list_variable_name == "socks4_list":
+                            socks4_list = custom_sources
+                        elif list_variable_name == "socks5_list":
+                            socks5_list = custom_sources
+                        print(f"{green}> Loaded {len(custom_sources)} {display_name} sources from {file_path}.{reset}")
+                    else:
+                        print(f"{red}> File {file_path} is empty. Using default {display_name} sources ({current_default_count} sources).{reset}")
+                except FileNotFoundError:
+                    print(f"{red}> Error: File {file_path} not found. Using default {display_name} sources ({current_default_count} sources).{reset}")
+                except OSError as e:
+                    print(f"{red}> Error reading file {file_path}: {e}. Using default {display_name} sources ({current_default_count} sources).{reset}")
+            else:
+                print(f"{blue}> Using default {display_name} sources ({current_default_count} sources).{reset}")
+        print(f"{cyan}--- End Custom Proxy Sources ---{reset}\n")
+    elif choice == '3':
+        print(f"{blue}Exiting script.{reset}")
+        sys.exit(0)
+    else:
+        print(f"{red}Invalid choice. Exiting.{reset}")
+        sys.exit(1)
+
+# Default proxy source lists
 http_links = [
     "https://api.proxyscrape.com/?request=getproxies&proxytype=https&timeout=10000&country=all&ssl=all&anonymity=all",
     "https://api.proxyscrape.com/v2/?request=getproxies&protocol=http&timeout=10000&country=all&ssl=all&anonymity=all",
@@ -103,8 +166,7 @@ socks4_list = [
     "https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/socks4.txt",
     "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks4.txt",
     "https://raw.githubusercontent.com/roosterkid/openproxylist/main/SOCKS4_RAW.txt",
-    "https://proxyspace.pro/socks4.txt",
-    "https://www.proxy-list.download/api/v1/get?type=socks4",
+    "https://www.proxy-list.download/api/v1/get?type=socks4", 
     "https://raw.githubusercontent.com/HyperBeats/proxy-list/main/socks4.txt",
     "https://raw.githubusercontent.com/mmpx12/proxy-list/master/socks4.txt",
     "https://raw.githubusercontent.com/saschazesiger/Free-Proxies/master/proxies/socks4.txt",
@@ -143,232 +205,301 @@ socks5_list = [
     "https://raw.githubusercontent.com/Zaeem20/FREE_PROXIES_LIST/master/socks5.txt",
     "https://raw.githubusercontent.com/prxchk/proxy-list/main/socks5.txt",
     "https://raw.githubusercontent.com/ALIILAPRO/Proxy/main/socks5.txt",
-    "https://spys.me/socks.txt",
+    "https://spys.me/socks.txt", 
     "https://raw.githubusercontent.com/zloi-user/hideip.me/main/socks5.txt"
 ]
 
-def test_links(links):
-    for link in links:
-        try:
-            response = requests.get(link)
-            response.raise_for_status()
-            print(f"{green}Success: {link}")
-        except SSLError as e:
-            print(f"{red}SSL Error: {link} - {e}")
-            if link in http_links : 
-                http_links.remove(link)
-            if link in socks4_list : 
-                socks4_list.remove(link)
-            if link in socks5_list : 
-                socks5_list.remove(link)
-        except Exception as e:
-            print(f"{red}Error: {link} - {e}")
-            if link in http_links : 
-                http_links.remove(link)
-            if link in socks4_list : 
-                socks4_list.remove(link)
-            if link in socks5_list : 
-                socks5_list.remove(link)
+async def test_links_async(links_to_test, session, link_type_name_for_log):
+    tasks = []
+    for link in links_to_test:
+        tasks.append(asyncio.create_task(session.get(link, timeout=aiohttp.ClientTimeout(total=10), allow_redirects=True)))
 
-print(f"{pink}Testing HTTP links:")
-test_links(http_links)
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    
+    valid_links_for_current_batch = []
+    
+    for i, result_or_exc in enumerate(results):
+        link = links_to_test[i]
+        if isinstance(result_or_exc, aiohttp.ClientResponse):
+            try:
+                if result_or_exc.status == 200:
+                    print(f"{green}[{get_time_rn()}] Success testing link (Async): {link}{reset}")
+                    valid_links_for_current_batch.append(link)
+                else:
+                    print(f"{red}[{get_time_rn()}] Failed testing link (Async): {link} - Status: {result_or_exc.status}{reset}")
+            finally:
+                result_or_exc.close()
+        elif isinstance(result_or_exc, SSLError):
+            print(f"{red}[{get_time_rn()}] SSL Error testing link (Async): {link} - {result_or_exc}{reset}")
+        elif isinstance(result_or_exc, asyncio.TimeoutError):
+            print(f"{red}[{get_time_rn()}] Timeout testing link (Async): {link}{reset}")
+        elif isinstance(result_or_exc, aiohttp.ClientError):
+            print(f"{red}[{get_time_rn()}] Client Error testing link (Async): {link} - {result_or_exc}{reset}")
+        elif isinstance(result_or_exc, Exception):
+            print(f"{red}[{get_time_rn()}] Generic Error testing link (Async): {link} - {type(result_or_exc).__name__}: {result_or_exc}{reset}")
+            
+    return valid_links_for_current_batch
 
-print(f"\n{pink}Testing SOCKS4 links:")
-test_links(socks4_list)
-
-print(f"\n{pink}Testing SOCKS5 links:")
-test_links(socks5_list)
 def scrape_proxy_links_https(link):
     global https_scraped
-    response = requests.get(link)
-    if response.status_code == 200:
+    try:
+        response = requests.get(link, timeout=10) 
+        response.raise_for_status()
         with output_lock:
             time_rn = get_time_rn()
-            print(f"[ {pink}{time_rn}{reset} ] | ( {green}SUCCESS{reset} ) {pretty}Scraped --> ", end='')
-            sys.stdout.flush()
-            Write.Print(link[:60] + "*******\n", Colors.purple_to_red, interval=0.000)
+            print(f"[ {pink}{time_rn}{reset} ] | ( {green}SCRAPED{reset} ) {pretty}HTTP/S --> {link[:60]}...{reset}")
         proxies = response.text.splitlines()
         https_scraped += len(proxies)
         update_title()
         return proxies
+    except requests.exceptions.RequestException as e:
+        with output_lock:
+            print(f"{red}[{get_time_rn()}] Failed to scrape HTTPS {link}: {e}{reset}")
     return []
 
-proxies = []
-num_threads = 100
-with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
-    results = executor.map(scrape_proxy_links_https, http_links)
-    for result in results:
-        proxies.extend(result)
-
-with open("http_proxies.txt", "w") as file:
-    for proxy in proxies:
-        if ":" in proxy and not any(c.isalpha() for c in proxy):
-            file.write(proxy + '\n')
-
-def scrape_proxy_links_socks4(link):
+async def scrape_proxy_links_socks4(link, session):
     global socks4_scraped
-    response = requests.get(link)
-    if response.status_code == 200:
-        with output_lock:
-            time_rn = get_time_rn()
-            print(f"[ {pink}{time_rn}{reset} ] | ( {green}SUCCESS{reset} ) {pretty}Scraped --> ", end='')
-            sys.stdout.flush()
-            Write.Print(link[:60] + "*******\n", Colors.purple_to_red, interval=0.000)
-        proxies = response.text.splitlines()
-        socks4_scraped += len(proxies)
-        update_title()
-        return proxies
-    return []
-
-proxies = []
-num_threads = 100
-with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
-    results = executor.map(scrape_proxy_links_socks4, socks4_list)
-    for result in results:
-        proxies.extend(result)
-
-with open("socks4_proxies.txt", "w") as file:
-    for proxy in proxies:
-        if ":" in proxy and not any(c.isalpha() for c in proxy):
-            file.write(proxy + '\n')
-
-def scrape_proxy_links_socks5(link):
-    global socks5_scraped
-    response = requests.get(link)
-    if response.status_code == 200:
-        with output_lock:
-            time_rn = get_time_rn()
-            print(f"[ {pink}{time_rn}{reset} ] | ( {green}SUCCESS{reset} ) {pretty}Scraped --> ", end='')
-            sys.stdout.flush()
-            Write.Print(link[:60] + "*******\n", Colors.purple_to_red, interval=0.000)
-        proxies = response.text.splitlines()
-        socks5_scraped += len(proxies)
-        update_title()
-        return proxies
-    return []
-
-proxies = []
-num_threads = 100
-with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
-    results = executor.map(scrape_proxy_links_socks5, socks5_list)
-    for result in results:
-        proxies.extend(result)
-
-with open("socks5_proxies.txt", "w") as file:
-    for proxy in proxies:
-        if ":" in proxy and not any(c.isalpha() for c in proxy):
-            file.write(proxy + '\n')
-
-time.sleep(1)
-nameFile = f"Results"
-if not os.path.exists(nameFile):
-    os.mkdir(nameFile)
-
-a = open("Results/http.txt", "w")
-b = open("Results/socks4.txt", "w")
-c = open("Results/socks5.txt", "w")
-
-a.write("")
-b.write("")
-c.write("")
-
-a.close()
-b.close()
-c.close()
-
-valid_http = []
-valid_socks4 = []
-valid_socks5 = []
-
-def check_proxy_http(proxy):
-    global http_checked
-
-    proxy_dict = {
-        "http": "http://" + proxy,
-        "https": "https://" + proxy
-    }
-    
     try:
-        url = 'http://httpbin.org/get' 
-        r = requests.get(url, proxies=proxy_dict, timeout=30,)
-        if r.status_code == 200:
+        async with session.get(link, timeout=aiohttp.ClientTimeout(total=10)) as response:
+            response.raise_for_status()
+            proxies_text = await response.text()
             with output_lock:
                 time_rn = get_time_rn()
-                print(f"[ {pink}{time_rn}{reset} ] | ( {green}VALID{reset} ) {pretty}HTTP/S --> ", end='')
-                sys.stdout.flush()
-                Write.Print(proxy + "\n", Colors.cyan_to_blue, interval=0.000)
-            valid_http.append(proxy)
+                print(f"[ {pink}{time_rn}{reset} ] | ( {green}SCRAPED{reset} ) {pretty}SOCKS4 --> {link[:60]}...{reset}")
+            proxies = proxies_text.splitlines()
+            socks4_scraped += len(proxies)
+            update_title()
+            return proxies
+    except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+        with output_lock:
+            print(f"{red}[{get_time_rn()}] Failed to async scrape SOCKS4 {link}: {e}{reset}")
+    return []
+
+async def scrape_proxy_links_socks5(link, session):
+    global socks5_scraped
+    try:
+        async with session.get(link, timeout=aiohttp.ClientTimeout(total=10)) as response:
+            response.raise_for_status()
+            proxies_text = await response.text()
+            with output_lock:
+                time_rn = get_time_rn()
+                print(f"[ {pink}{time_rn}{reset} ] | ( {green}SCRAPED{reset} ) {pretty}SOCKS5 --> {link[:60]}...{reset}")
+            proxies = proxies_text.splitlines()
+            socks5_scraped += len(proxies)
+            update_title()
+            return proxies
+    except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+        with output_lock:
+            print(f"{red}[{get_time_rn()}] Failed to async scrape SOCKS5 {link}: {e}{reset}")
+    return []
+
+async def check_proxy_http_async(proxy, session):
+    global http_checked
+    url = 'https://httpbin.org/ip' 
+    proxy_url = f"http://{proxy}"
+    try:
+        async with session.get(url, proxy=proxy_url, timeout=aiohttp.ClientTimeout(total=7)) as response:
+            response.raise_for_status() # Will raise for 4xx/5xx status
+            # Optionally, check response content if needed
+            # await response.text() 
+            with output_lock:
+                time_rn = get_time_rn()
+                print(f"[ {pink}{time_rn}{reset} ] | ( {green}VALID{reset} ) {pretty}HTTP/S --> {proxy}{reset}")
             http_checked += 1
             update_title2()
-            with open(f"Results/http.txt", "a+") as f:
+            with open(os.path.join("Results", "http.txt"), "a") as f:
                 f.write(proxy + "\n")
-    except requests.exceptions.RequestException as e:
+    except (aiohttp.ClientError, asyncio.TimeoutError, SocksConnectionError, SocksError, OSError) as e:
+        # print(f"{red}Failed HTTP check for {proxy}: {e}{reset}") # Optional: for debugging
         pass
 
-def checker_proxy_socks4(proxy):
-    global socks4_checked
+async def checker_proxy_socks_async(proxy, proxy_type_const):
+    global socks4_checked, socks5_checked
+    
     try:
-        socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS4, proxy.split(':')[0], int(proxy.split(':')[1]))
-        socket.socket = socks.socksocket
-        socket.create_connection(("www.google.com", 443), timeout=5)
-        socks4_checked += 1
-        update_title2()
-        with output_lock:
-            time_rn = get_time_rn()
-            print(f"[ {pink}{time_rn}{reset} ] | ( {green}VALID{reset} ) {pretty}SOCKS4 --> ", end='')
-            sys.stdout.flush()
-            Write.Print(proxy + "\n", Colors.cyan_to_blue, interval=0.000)
-        with open("Results/socks4.txt", "a+") as f:
-            f.write(proxy + "\n")
-    except (socks.ProxyConnectionError, socket.timeout, OSError):
-        pass
+        ip, port_str = proxy.split(':')
+        port = int(port_str)
+    except ValueError:
+        # print(f"{red}Invalid proxy format for SOCKS: {proxy}{reset}")
+        return
 
-def checker_proxy_socks5(proxy):
-    global socks5_checked
+    if proxy_type_const == socks.PROXY_TYPE_SOCKS4:
+        connector = ProxyConnector.from_url(f"socks4://{ip}:{port}")
+        type_str = "SOCKS4"
+    elif proxy_type_const == socks.PROXY_TYPE_SOCKS5:
+        connector = ProxyConnector.from_url(f"socks5://{ip}:{port}")
+        type_str = "SOCKS5"
+    else:
+        return # Should not happen
+
     try:
-        socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, proxy.split(':')[0], int(proxy.split(':')[1]))
-        socket.socket = socks.socksocket
-        socket.create_connection(("www.google.com", 443), timeout=5)
-        socks5_checked += 1
-        update_title2()
-        with output_lock:
-            time_rn = get_time_rn()
-            print(f"[ {pink}{time_rn}{reset} ] | ( {green}VALID{reset} ) {pretty}SOCKS5 --> ", end='')
-            sys.stdout.flush()
-            Write.Print(proxy + "\n", Colors.cyan_to_blue, interval=0.000)
-        with open("Results/socks5.txt", "a+") as f:
-            f.write(proxy + "\n")
-    except (socks.ProxyConnectionError, socket.timeout, OSError):
+        async with aiohttp.ClientSession(connector=connector, trust_env=False) as proxy_session:
+            # Using HEAD for efficiency, target doesn't need to be Google specifically, just a reliable server
+            async with proxy_session.head("https://www.google.com", timeout=aiohttp.ClientTimeout(total=7), allow_redirects=False) as resp:
+                # Consider 2xx and 3xx as success for connectivity check
+                if 200 <= resp.status < 400:
+                    with output_lock:
+                        time_rn = get_time_rn()
+                        print(f"[ {pink}{time_rn}{reset} ] | ( {green}VALID{reset} ) {pretty}{type_str} --> {proxy}{reset}")
+                    
+                    if proxy_type_const == socks.PROXY_TYPE_SOCKS4:
+                        socks4_checked += 1
+                        with open(os.path.join("Results", "socks4.txt"), "a") as f:
+                            f.write(proxy + "\n")
+                    else: # SOCKS5
+                        socks5_checked += 1
+                        with open(os.path.join("Results", "socks5.txt"), "a") as f:
+                            f.write(proxy + "\n")
+                    update_title2()
+    except (aiohttp.ClientError, SocksConnectionError, SocksError, asyncio.TimeoutError, OSError) as e:
+        # print(f"{red}Failed {type_str} check for {proxy}: {e}{reset}") # Optional: for debugging
         pass
+    finally:
+        # Connectors should be closed if they are not managed by a session's context manager
+        # However, in this case, the session created with the connector is closed, which handles the connector.
+        if 'connector' in locals() and connector: # Ensure connector was initialized
+             await connector.close()
 
-def check_all(proxy_type, pathTXT):
+
+async def check_all_proxies_async(proxy_type_str, pathTXT, session): # session is for HTTP checks
     with open(pathTXT, "r") as f:
-        proxies = f.read().splitlines()
+        proxies = [line.strip() for line in f if line.strip() and ":" in line]
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=len(proxies)) as executor:
-        if proxy_type.startswith("http") or proxy_type.startswith("https"):
-            executor.map(check_proxy_http, proxies)
-        if proxy_type.startswith("socks4"):
-            executor.map(checker_proxy_socks4, proxies)
-        if proxy_type.startswith("socks5"):
-            executor.map(checker_proxy_socks5, proxies)
+    if not proxies:
+        print(f"{yellow}No proxies to check in {pathTXT}{reset}")
+        return
 
-def LetsCheckIt(proxy_types):
-    threadsCrack = []
-    for proxy_type in proxy_types:
-        if os.path.exists(f"{proxy_type}_proxies.txt"):
-            t = threading.Thread(target=check_all, args=(proxy_type, f"{proxy_type}_proxies.txt"))
-            t.start()
-            threadsCrack.append(t)
-    for t in threadsCrack:
-        t.join()
+    # num_check_workers = min(len(proxies), 200) # Max concurrency for asyncio.gather
+    # print(f"{cyan}Checking {len(proxies)} {proxy_type_str.upper()} proxies from {pathTXT} asynchronously...{reset}")
+
+    tasks = []
+    if proxy_type_str == "http":
+        tasks = [check_proxy_http_async(p, session) for p in proxies]
+    elif proxy_type_str == "socks4":
+        tasks = [checker_proxy_socks_async(p, socks.PROXY_TYPE_SOCKS4) for p in proxies]
+    elif proxy_type_str == "socks5":
+        tasks = [checker_proxy_socks_async(p, socks.PROXY_TYPE_SOCKS5) for p in proxies]
+    
+    if tasks:
+        await asyncio.gather(*tasks)
+
+async def run_checkers_async(proxy_config, session): # session is the main session for HTTP
+    checker_tasks = []
+    for proxy_type_str, file_path in proxy_config:
+        if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+            # Pass the main session only if it's for HTTP checks, SOCKS checks create their own.
+            current_session_for_task = session if proxy_type_str == "http" else None
+            checker_tasks.append(check_all_proxies_async(proxy_type_str, file_path, current_session_for_task))
+        else:
+            print(f"{yellow}Skipping checks for {proxy_type_str.upper()}: {file_path} is empty or missing.{reset}")
+            
+    if checker_tasks:
+        await asyncio.gather(*checker_tasks)
+
+async def main_async():
+    global http_links, socks4_list, socks5_list
+
+    ui()
+    load_custom_sources() # Call the new function here
+
+    async with aiohttp.ClientSession() as session: # Main session for HTTP checks and link testing/scraping
+        print(f"{pink}Testing HTTP links asynchronously...{reset}")
+        http_links = await test_links_async(list(http_links), session, "HTTP")
+        
+        print(f"\n{pink}Testing SOCKS4 links asynchronously...{reset}")
+        socks4_list = await test_links_async(list(socks4_list), session, "SOCKS4")
+        
+        print(f"\n{pink}Testing SOCKS5 links asynchronously...{reset}")
+        socks5_list = await test_links_async(list(socks5_list), session, "SOCKS5")
+
+        print(f"\n{cyan}--- Starting Asynchronous Scraping Process ---{reset}")
+    
+        scraped_proxies_http = []
+        if http_links:
+            # Assuming scrape_proxy_links_https is already async and takes session
+            http_scrape_tasks = [scrape_proxy_links_https(link, session) for link in http_links]
+            results_http = await asyncio.gather(*http_scrape_tasks, return_exceptions=True)
+            for res in results_http:
+                if isinstance(res, list): scraped_proxies_http.extend(res)
+        
+        with open("http_proxies.txt", "w") as file:
+            count = 0
+            for proxy in scraped_proxies_http:
+                if proxy and ":" in proxy and not any(c.isalpha() for c in proxy.split(':')[0]):
+                    file.write(proxy + '\n')
+                    count +=1
+            print(f"{green}Saved {count} HTTP/S proxies to http_proxies.txt{reset}")
+        
+        scraped_proxies_socks4 = []
+        if socks4_list:
+            socks4_scrape_tasks = [scrape_proxy_links_socks4(link, session) for link in socks4_list]
+            results_socks4 = await asyncio.gather(*socks4_scrape_tasks, return_exceptions=True)
+            for res in results_socks4:
+                if isinstance(res, list): scraped_proxies_socks4.extend(res)
+                
+        with open("socks4_proxies.txt", "w") as file:
+            count = 0
+            for proxy in scraped_proxies_socks4:
+                if proxy and ":" in proxy and not any(c.isalpha() for c in proxy.split(':')[0]):
+                    file.write(proxy + '\n')
+                    count +=1
+            print(f"{green}Saved {count} SOCKS4 proxies to socks4_proxies.txt{reset}")
+
+        scraped_proxies_socks5 = []
+        if socks5_list:
+            socks5_scrape_tasks = [scrape_proxy_links_socks5(link, session) for link in socks5_list]
+            results_socks5 = await asyncio.gather(*socks5_scrape_tasks, return_exceptions=True)
+            for res in results_socks5:
+                if isinstance(res, list): scraped_proxies_socks5.extend(res)
+
+        with open("socks5_proxies.txt", "w") as file:
+            count = 0
+            for proxy in scraped_proxies_socks5:
+                if proxy and ":" in proxy and not any(c.isalpha() for c in proxy.split(':')[0]):
+                    file.write(proxy + '\n')
+                    count +=1
+            print(f"{green}Saved {count} SOCKS5 proxies to socks5_proxies.txt{reset}")
+
+        await asyncio.sleep(0.5)
+
+        print(f"\n{cyan}--- Starting Asynchronous Checking Process ---{reset}")
+        results_dir = "Results"
+        if not os.path.exists(results_dir):
+            os.mkdir(results_dir)
+
+        for p_type in ["http", "socks4", "socks5"]:
+            with open(os.path.join(results_dir, f"{p_type}.txt"), "w") as f:
+                f.write("")
+        
+        proxy_check_config = [
+            ("http", "http_proxies.txt"),
+            ("socks4", "socks4_proxies.txt"),
+            ("socks5", "socks5_proxies.txt")
+        ]
+        # Pass the main session to run_checkers_async, it will be used for HTTP checks
+        await run_checkers_async(proxy_check_config, session) 
+
+    print(f"\n{cyan}--- Cleaning up temporary files ---{reset}")
+    for temp_file in ["http_proxies.txt", "socks4_proxies.txt", "socks5_proxies.txt"]:
+        try:
+            if os.path.exists(temp_file):
+                os.remove(temp_file)
+                print(f"{gray}Removed {temp_file}{reset}")
+        except OSError as e:
+            print(f"{red}Error removing temporary file {temp_file}: {e}{reset}")
+
+    print(f"\n{green}Process Complete. Valid proxies saved in '{results_dir}' directory.")
+    input(f"{cyan}Press Enter to exit...{reset}")
 
 
-proxy_types = ["http", "socks4", "socks5"]
-LetsCheckIt(proxy_types)
-
-
-os.remove("http_proxies.txt")
-os.remove("socks4_proxies.txt")
-os.remove("socks5_proxies.txt")
-input()
+if __name__ == "__main__":
+    try:
+        asyncio.run(main_async())
+    except KeyboardInterrupt:
+        print(f"{red}\n[!] Exiting gracefully...{reset}")
+    except Exception as e:
+        import traceback
+        print(f"{red}\n[!] An unexpected error occurred in main execution: {e}")
+        traceback.print_exc()
+    finally:
+        print(reset)

@@ -14,6 +14,30 @@ https://github.com/H4cK3dR4Du/Discord-Member-Booster/assets/118562174/3a50780a-e
 - Fully Requests Based
 - HTTP/s, SOCKS4 & SOCKS5 Scraper/Checker
 
+## ⚙️ Setup
+
+1.  **Clone the repository (if you haven't already):**
+    ```bash
+    git clone https://github.com/H4cK3dR4Du/LunusBPS.git 
+    cd LunusBPS
+    ```
+
+2.  **Install dependencies:**
+    It is recommended to use a virtual environment.
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+    ```
+    Then, install the required packages:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3.  **Run the script:**
+    ```bash
+    python main.py
+    ```
+
 ## ⚠️ DISCLAIMER / NOTES
 This github repo is for EDUCATIONAL PURPOSES ONLY. We Are NOT under any responsibility if a problem occurs.
 This version is a remastered that check if links are working before scraping them, avoiding ssl errors.
