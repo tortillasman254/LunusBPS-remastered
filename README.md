@@ -13,6 +13,7 @@ https://github.com/H4cK3dR4Du/Discord-Member-Booster/assets/118562174/3a50780a-e
 - Easy To Setup
 - Fully Requests Based
 - HTTP/s, SOCKS4 & SOCKS5 Scraper/Checker
+- **Interactive Startup Menu**: Choose to run with default proxy sources, provide your own custom source files for HTTP/S, SOCKS4, and SOCKS5 proxies, or exit.
 
 ## ⚙️ Setup
 
